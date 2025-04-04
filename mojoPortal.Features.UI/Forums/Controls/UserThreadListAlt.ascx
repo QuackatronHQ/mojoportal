@@ -3,39 +3,43 @@
 
 <forum:ForumDisplaySettings ID="displaySettings" runat="server" />
 
-<div class="modulepager"><portal:mojoCutePager ID="pgrTop" runat="server" /></div>
-	
-<asp:Repeater id="rptForums" runat="server" >
-	<HeaderTemplate><ul class='simplelist  <%= displaySettings.UserThreadListCssClass %>'></HeaderTemplate>
+<div class="modulepager">
+	<portal:mojoCutePager ID="pgrTop" runat="server" />
+</div>
+
+<asp:Repeater ID="rptForums" runat="server">
+	<HeaderTemplate>
+		<ul class='simplelist  <%= displaySettings.UserThreadListCssClass %>'>
+	</HeaderTemplate>
 	<ItemTemplate>
 		<li class='forumwrap threadwrap'>
-			<div class="threadtitle"> 
-				<img alt="" src='<%# ImageSiteRoot + "/Data/SiteImages/folder.png"  %>'  />
+			<div class="threadtitle">
+				<img alt="" src='<%# ImageSiteRoot + "/Data/SiteImages/folder.png"  %>' />
 				<a href='<%# FormatThreadUrl(Convert.ToInt32(Eval("ThreadID")),Convert.ToInt32(Eval("ModuleID")),Convert.ToInt32(Eval("ForumID")),Convert.ToInt32(Eval("PageID"))) %>'>
 					<%# Server.HtmlEncode(DataBinder.Eval(Container.DataItem, "ThreadSubject").ToString())%></a>
 			</div>
-			<div class="threadstartedby">  
-                <mp:SiteLabel id="lblForumStartedBy" runat="server" ConfigKey="ForumViewStartedByLabel" ResourceFile="ForumResources" UseLabelTag="false" CssClass="fstatlabel" />
+			<div class="threadstartedby">
+				<mp:SiteLabel ID="lblForumStartedBy" runat="server" ConfigKey="ForumViewStartedByLabel" ResourceFile="ForumResources" UseLabelTag="false" CssClass="fstatlabel" />
 				<%# DataBinder.Eval(Container.DataItem, "StartedBy")%>
 			</div>
 		</li>
 	</ItemTemplate>
-	<alternatingItemTemplate>
+	<AlternatingItemTemplate>
 		<li class='forumwrap threadwrap threadwrapalt'>
-			<div class="threadtitle"> 
-				<img alt="" src='<%# ImageSiteRoot + "/Data/SiteImages/folder.png"  %>'  />
+			<div class="threadtitle">
+				<img alt="" src='<%# ImageSiteRoot + "/Data/SiteImages/folder.png"  %>' />
 				<a href='<%# FormatThreadUrl(Convert.ToInt32(Eval("ThreadID")),Convert.ToInt32(Eval("ModuleID")),Convert.ToInt32(Eval("ForumID")),Convert.ToInt32(Eval("PageID"))) %>'>
 					<%# Server.HtmlEncode(DataBinder.Eval(Container.DataItem, "ThreadSubject").ToString())%></a>
 			</div>
-			<div class="threadstartedby">  
-                <mp:SiteLabel id="SiteLabel1" runat="server" ConfigKey="ForumViewStartedByLabel" ResourceFile="ForumResources" UseLabelTag="false" CssClass="fstatlabel" />
+			<div class="threadstartedby">
+				<mp:SiteLabel ID="SiteLabel1" runat="server" ConfigKey="ForumViewStartedByLabel" ResourceFile="ForumResources" UseLabelTag="false" CssClass="fstatlabel" />
 				<%# DataBinder.Eval(Container.DataItem, "StartedBy")%>
 			</div>
 		</li>
 	</AlternatingItemTemplate>
 	<FooterTemplate></ul></FooterTemplate>
 </asp:Repeater>
-	
-	<div class="modulepager">
-		<portal:mojoCutePager ID="pgrBottom" runat="server" />
-	</div>
+
+<div class="modulepager">
+	<portal:mojoCutePager ID="pgrBottom" runat="server" />
+</div>

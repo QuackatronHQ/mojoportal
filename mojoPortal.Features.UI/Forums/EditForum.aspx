@@ -142,7 +142,7 @@
 						<div class="settingrow">
 							<asp:Label ID="lblError" runat="server" CssClass="txterror"></asp:Label>
 						</div>
-						<div class="settingrow">
+						<div class="settingrow buttonrow">
 							<div class="forminput">
 								<portal:mojoButton ID="btnUpdate" runat="server" />&nbsp;
 								<portal:mojoButton ID="btnDelete" runat="server" CausesValidation="false" />&nbsp;

@@ -18,182 +18,180 @@ using mojoPortal.SearchIndex;
 using mojoPortal.Web.Framework;
 using Resources;
 
-namespace mojoPortal.Web.ForumUI
+namespace mojoPortal.Web.ForumUI;
+
+public partial class ForumThreadEdit : NonCmsBasePage
 {
+	private int moduleId = -1;
+	private int threadId = -1;
+	private SiteUser siteUser;
+	private ForumThread forumThread;
+	private bool userCanEdit = false;
 
-	public partial class ForumThreadEdit : NonCmsBasePage
+	#region OnInit
+
+	protected override void OnPreInit(EventArgs e)
 	{
-		private int moduleId = -1;
-		private int threadId = -1;
-		private SiteUser siteUser;
-		private ForumThread forumThread;
-		private bool userCanEdit = false;
+		AllowSkinOverride = true;
+		base.OnPreInit(e);
+	}
 
-		#region OnInit
+	override protected void OnInit(EventArgs e)
+	{
+		this.Load += new EventHandler(this.Page_Load);
+		this.btnUpdate.Click += new EventHandler(btnUpdate_Click);
+		this.btnDelete.Click += new EventHandler(btnDelete_Click);
+		base.OnInit(e);
 
-		protected override void OnPreInit(EventArgs e)
+		SuppressPageMenu();
+	}
+
+	#endregion
+
+
+	private void Page_Load(object sender, EventArgs e)
+	{
+
+		SecurityHelper.DisableBrowserCache();
+
+		LoadParams();
+
+		userCanEdit = UserCanEditModule(moduleId, Forum.FeatureGuid);
+		if (!userCanEdit)
 		{
-			AllowSkinOverride = true;
-			base.OnPreInit(e);
+			SiteUtils.RedirectToAccessDeniedPage(this);
+			return;
 		}
 
-		override protected void OnInit(EventArgs e)
+		forumThread = new ForumThread(threadId);
+		if (forumThread.ModuleId != moduleId)
 		{
-			this.Load += new EventHandler(this.Page_Load);
-			this.btnUpdate.Click += new EventHandler(btnUpdate_Click);
-			this.btnDelete.Click += new EventHandler(btnDelete_Click);
-			base.OnInit(e);
-
-			SuppressPageMenu();
+			SiteUtils.RedirectToAccessDeniedPage(this);
+			return;
 		}
 
-		#endregion
-
-
-		private void Page_Load(object sender, EventArgs e)
+		if (SiteUtils.IsFishyPost(this))
 		{
-
-			SecurityHelper.DisableBrowserCache();
-
-			LoadParams();
-
-			userCanEdit = UserCanEditModule(moduleId, Forum.FeatureGuid);
-			if (!userCanEdit)
-			{
-				SiteUtils.RedirectToAccessDeniedPage(this);
-				return;
-			}
-
-			forumThread = new ForumThread(threadId);
-			if (forumThread.ModuleId != moduleId)
-			{
-				SiteUtils.RedirectToAccessDeniedPage(this);
-				return;
-			}
-
-			if (SiteUtils.IsFishyPost(this))
-			{
-				SiteUtils.RedirectToAccessDeniedPage(this);
-				return;
-			}
-
-			ForumThreadIndexBuilderProvider indexBuilder
-				= (ForumThreadIndexBuilderProvider)IndexBuilderManager.Providers["ForumThreadIndexBuilderProvider"];
-
-			if (indexBuilder != null)
-			{
-				forumThread.ThreadMoved += new ForumThread.ThreadMovedEventHandler(indexBuilder.ThreadMovedHandler);
-			}
-
-			siteUser = SiteUtils.GetCurrentSiteUser();
-
-			PopulateLabels();
-
-			if (!IsPostBack)
-			{
-				PopulateControls();
-				if ((Request.UrlReferrer != null) && (hdnReturnUrl.Value.Length == 0))
-				{
-					hdnReturnUrl.Value = Request.UrlReferrer.ToString();
-					lnkCancel.NavigateUrl = hdnReturnUrl.Value;
-
-				}
-			}
-
-			AnalyticsSection = mojoPortal.Core.Configuration.ConfigHelper.GetStringProperty("AnalyticsForumSection", "forums");
-
+			SiteUtils.RedirectToAccessDeniedPage(this);
+			return;
 		}
 
+		ForumThreadIndexBuilderProvider indexBuilder
+			= (ForumThreadIndexBuilderProvider)IndexBuilderManager.Providers["ForumThreadIndexBuilderProvider"];
 
-
-		private void PopulateLabels()
+		if (indexBuilder != null)
 		{
-			Title = SiteUtils.FormatPageTitle(siteSettings, ForumResources.ForumThreadEditLabel);
-			heading.Text = ForumResources.ForumThreadEditLabel;
-			btnUpdate.Text = ForumResources.ForumThreadUpdateButton;
-			SiteUtils.SetButtonAccessKey(btnUpdate, ForumResources.ForumEditUpdateButtonAccessKey);
-
-			lnkCancel.Text = ForumResources.ForumThreadCancelButton;
-			lnkCancel.NavigateUrl = SiteUtils.GetCurrentPageUrl();
-
-			btnDelete.Text = ForumResources.ForumThreadDeleteButton;
-			SiteUtils.SetButtonAccessKey(btnDelete, ForumResources.ForumEditDeleteButtonAccessKey);
-			UIHelper.AddConfirmationDialog(btnDelete, ForumResources.ForumDeleteThreadWarning);
-
-
+			forumThread.ThreadMoved += new ForumThread.ThreadMovedEventHandler(indexBuilder.ThreadMovedHandler);
 		}
 
-		private void PopulateControls()
-		{
-			var forum = new Forum(forumThread.ForumId);
-			txtSubject.Text = forumThread.Subject.RemoveMarkup();
-			txtSortOrder.Text = forumThread.SortOrder.ToInvariantString();
-			txtPageTitleOverride.Text = forumThread.PageTitleOverride;
-			chkIsLocked.Checked = forumThread.IsLocked;
-			chkIncludeInSiteMap.Checked = forumThread.IncludeInSiteMap;
-			chkSetNoIndexMeta.Checked = forumThread.SetNoIndexMeta;
+		siteUser = SiteUtils.GetCurrentSiteUser();
 
-			using (IDataReader reader = Forum.GetForums(forum.ModuleId, siteUser.UserId))
+		PopulateLabels();
+
+		if (!IsPostBack)
+		{
+			PopulateControls();
+			if ((Request.UrlReferrer != null) && (hdnReturnUrl.Value.Length == 0))
 			{
-				ddForumList.DataSource = reader;
-				ddForumList.DataBind();
+				hdnReturnUrl.Value = Request.UrlReferrer.ToString();
+				lnkCancel.NavigateUrl = hdnReturnUrl.Value;
+
 			}
-			this.ddForumList.SelectedValue = forumThread.ForumId.ToInvariantString();
-
 		}
 
+		AnalyticsSection = mojoPortal.Core.Configuration.ConfigHelper.GetStringProperty("AnalyticsForumSection", "forums");
 
-		private void btnUpdate_Click(object sender, EventArgs e)
+	}
+
+
+
+	private void PopulateLabels()
+	{
+		Title = SiteUtils.FormatPageTitle(siteSettings, ForumResources.ForumThreadEditLabel);
+		heading.Text = ForumResources.ForumThreadEditLabel;
+		btnUpdate.Text = ForumResources.ForumThreadUpdateButton;
+		SiteUtils.SetButtonAccessKey(btnUpdate, ForumResources.ForumEditUpdateButtonAccessKey);
+
+		lnkCancel.Text = ForumResources.ForumThreadCancelButton;
+		lnkCancel.NavigateUrl = SiteUtils.GetCurrentPageUrl();
+
+		btnDelete.Text = ForumResources.ForumThreadDeleteButton;
+		SiteUtils.SetButtonAccessKey(btnDelete, ForumResources.ForumEditDeleteButtonAccessKey);
+		UIHelper.AddConfirmationDialog(btnDelete, ForumResources.ForumDeleteThreadWarning);
+
+
+	}
+
+	private void PopulateControls()
+	{
+		var forum = new Forum(forumThread.ForumId);
+		txtSubject.Text = forumThread.Subject.RemoveMarkup();
+		txtSortOrder.Text = forumThread.SortOrder.ToInvariantString();
+		txtPageTitleOverride.Text = forumThread.PageTitleOverride;
+		chkIsLocked.Checked = forumThread.IsLocked;
+		chkIncludeInSiteMap.Checked = forumThread.IncludeInSiteMap;
+		chkSetNoIndexMeta.Checked = forumThread.SetNoIndexMeta;
+
+		using (IDataReader reader = Forum.GetForums(forum.ModuleId, siteUser.UserId))
 		{
-			forumThread.ForumId = int.Parse(this.ddForumList.SelectedValue);
-			forumThread.Subject = this.txtSubject.Text;
-			forumThread.PageTitleOverride = txtPageTitleOverride.Text;
-
-			int.TryParse(txtSortOrder.Text, out int sort);
-			forumThread.SortOrder = sort;
-			forumThread.IsLocked = chkIsLocked.Checked;
-			forumThread.IncludeInSiteMap = chkIncludeInSiteMap.Checked;
-			forumThread.SetNoIndexMeta = chkSetNoIndexMeta.Checked;
-
-			forumThread.UpdateThread();
-
-			if (hdnReturnUrl.Value.Length > 0)
-			{
-				WebUtils.SetupRedirect(this, hdnReturnUrl.Value);
-				return;
-			}
-
-			WebUtils.SetupRedirect(this, SiteUtils.GetCurrentPageUrl());
+			ddForumList.DataSource = reader;
+			ddForumList.DataBind();
 		}
+		this.ddForumList.SelectedValue = forumThread.ForumId.ToInvariantString();
+
+	}
 
 
-		private void btnDelete_Click(object sender, EventArgs e)
+	private void btnUpdate_Click(object sender, EventArgs e)
+	{
+		forumThread.ForumId = int.Parse(this.ddForumList.SelectedValue);
+		forumThread.Subject = this.txtSubject.Text;
+		forumThread.PageTitleOverride = txtPageTitleOverride.Text;
+
+		int.TryParse(txtSortOrder.Text, out int sort);
+		forumThread.SortOrder = sort;
+		forumThread.IsLocked = chkIsLocked.Checked;
+		forumThread.IncludeInSiteMap = chkIncludeInSiteMap.Checked;
+		forumThread.SetNoIndexMeta = chkSetNoIndexMeta.Checked;
+
+		forumThread.UpdateThread();
+
+		if (hdnReturnUrl.Value.Length > 0)
 		{
-			// remove the thread from the search index
-			var forumThread = new ForumThread(threadId);
-
-			ForumThread.Delete(threadId);
-			Forum.UpdateUserStats(-1); // updates all users
-
-			ForumThreadIndexBuilderProvider.RemoveForumIndexItem(moduleId, forumThread.ForumId, threadId, -1);
-
-			SiteUtils.QueueIndexing();
-
-			if (hdnReturnUrl.Value.Length > 0)
-			{
-				WebUtils.SetupRedirect(this, hdnReturnUrl.Value);
-				return;
-			}
-
-			WebUtils.SetupRedirect(this, SiteUtils.GetCurrentPageUrl());
+			WebUtils.SetupRedirect(this, hdnReturnUrl.Value);
+			return;
 		}
 
-		private void LoadParams()
+		WebUtils.SetupRedirect(this, SiteUtils.GetCurrentPageUrl());
+	}
+
+
+	private void btnDelete_Click(object sender, EventArgs e)
+	{
+		// remove the thread from the search index
+		var forumThread = new ForumThread(threadId);
+
+		ForumThread.Delete(threadId);
+		Forum.UpdateUserStats(-1); // updates all users
+
+		ForumThreadIndexBuilderProvider.RemoveForumIndexItem(moduleId, forumThread.ForumId, threadId, -1);
+
+		SiteUtils.QueueIndexing();
+
+		if (hdnReturnUrl.Value.Length > 0)
 		{
-			threadId = WebUtils.ParseInt32FromQueryString("thread", threadId);
-			moduleId = WebUtils.ParseInt32FromQueryString("mid", moduleId);
-
-			AddClassToBody("editforumthread");
+			WebUtils.SetupRedirect(this, hdnReturnUrl.Value);
+			return;
 		}
+
+		WebUtils.SetupRedirect(this, SiteUtils.GetCurrentPageUrl());
+	}
+
+	private void LoadParams()
+	{
+		threadId = WebUtils.ParseInt32FromQueryString("thread", threadId);
+		moduleId = WebUtils.ParseInt32FromQueryString("mid", moduleId);
+
+		AddClassToBody("editforumthread");
 	}
 }
