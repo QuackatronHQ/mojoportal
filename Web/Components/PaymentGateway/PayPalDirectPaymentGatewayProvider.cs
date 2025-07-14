@@ -1,6 +1,6 @@
 ﻿// Author:					
-// Created:				    2012-01-09
-// Last Modified:			2012-01-09
+// Created:                   2012-01-09
+// Last Modified:             2012-01-09
 // 
 // The use and distribution terms for this software are covered by the 
 // Common Public License 1.0 (http://opensource.org/licenses/cpl.php)  
@@ -33,7 +33,7 @@ namespace mojoPortal.Web.Commerce
         private string configPrefix = string.Empty;
         private bool paymentGatewayUseTestMode = false;
         private string payPalAPIUsername = string.Empty;
-        private string payPalAPIPassword = string.Empty;
+        private char[] payPalAPIPassword = new char[0];
         private string payPalAPISignature = string.Empty;
         private bool didLoadSettings = false;
 
@@ -47,8 +47,10 @@ namespace mojoPortal.Web.Commerce
 
             if ((payPalAPIUsername.Length > 0) && (payPalAPIPassword.Length > 0) && (payPalAPISignature.Length > 0))
             {
-                PayPalDirectPaymentGateway gateway = new PayPalDirectPaymentGateway(payPalAPIUsername, payPalAPIPassword, payPalAPISignature);
+                PayPalDirectPaymentGateway gateway = new PayPalDirectPaymentGateway(payPalAPIUsername, new string(payPalAPIPassword), payPalAPISignature);
                 gateway.UseTestMode = paymentGatewayUseTestMode;
+                // Clear sensitive data
+                System.Array.Clear(payPalAPIPassword, 0, payPalAPIPassword.Length);
                 return gateway;
 
             }
@@ -65,13 +67,15 @@ namespace mojoPortal.Web.Commerce
                 if (paymentGatewayUseTestMode)
                 {
                     payPalAPIUsername = WebConfigSettings.CommerceGlobalPayPalSandboxAPIUsername;
-                    payPalAPIPassword = WebConfigSettings.CommerceGlobalPayPalSandboxAPIPassword;
+                    var pwd = WebConfigSettings.CommerceGlobalPayPalSandboxAPIPassword;
+                    payPalAPIPassword = pwd != null ? pwd.ToCharArray() : new char[0];
                     payPalAPISignature = WebConfigSettings.CommerceGlobalPayPalSandboxAPISignature;
                 }
                 else
                 {
                     payPalAPIUsername = WebConfigSettings.CommerceGlobalPayPalProductionAPIUsername;
-                    payPalAPIPassword = WebConfigSettings.CommerceGlobalPayPalProductionAPIPassword;
+                    var pwd = WebConfigSettings.CommerceGlobalPayPalProductionAPIPassword;
+                    payPalAPIPassword = pwd != null ? pwd.ToCharArray() : new char[0];
                     payPalAPISignature = WebConfigSettings.CommerceGlobalPayPalProductionAPISignature;
                 }
 
