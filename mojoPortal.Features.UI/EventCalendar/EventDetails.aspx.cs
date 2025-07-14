@@ -15,13 +15,13 @@ using Resources;
 namespace mojoPortal.Web.EventCalendarUI
 {
 
-	public partial class EventCalendarViewEvent : mojoBasePage
-	{
-		private int moduleId = -1;
+    public partial class EventCalendarViewEvent : mojoBasePage
+    {
+        private int moduleId = -1;
         private int itemId = -1;
         private Hashtable moduleSettings;
         protected string GmapApiKey = string.Empty;
-		protected CalendarConfiguration config;
+        protected CalendarConfiguration config;
         #region OnInit
 
         protected override void OnPreInit(EventArgs e)
@@ -39,7 +39,7 @@ namespace mojoPortal.Web.EventCalendarUI
         #endregion
 
         private void Page_Load(object sender, System.EventArgs e)
-		{
+        {
             LoadSettings();
 
             if (!UserCanViewPage(moduleId, CalendarEvent.FeatureGuid))
@@ -49,7 +49,7 @@ namespace mojoPortal.Web.EventCalendarUI
             }
 
             PopulateControls();
-		}
+        }
 
         private void PopulateControls()
         {
@@ -62,11 +62,11 @@ namespace mojoPortal.Web.EventCalendarUI
                     return;
                 }
 
-                heading.Text = calendarEvent.Title + " - " + calendarEvent.EventDate.ToShortDateString();
+                heading.Text = System.Web.HttpUtility.HtmlEncode(calendarEvent.Title) + " - " + calendarEvent.EventDate.ToShortDateString();
 
-                Title = SiteUtils.FormatPageTitle(siteSettings, calendarEvent.Title);
+                Title = SiteUtils.FormatPageTitle(siteSettings, System.Web.HttpUtility.HtmlEncode(calendarEvent.Title));
 
-                this.litDescription.Text = calendarEvent.Description;
+                this.litDescription.Text = System.Web.HttpUtility.HtmlEncode(calendarEvent.Description);
                 this.lblStartTime.Text = calendarEvent.StartTime.ToShortTimeString();
                 this.lblEndTime.Text = calendarEvent.EndTime.ToShortTimeString();
 
@@ -90,8 +90,8 @@ namespace mojoPortal.Web.EventCalendarUI
                 {
                     gmap.Visible = false;
                 }
-				lblLocation.Text = calendarEvent.Location;
-				pnlOuterWrap.SetOrAppendCss(config.InstanceCssClass);
+                lblLocation.Text = System.Web.HttpUtility.HtmlEncode(calendarEvent.Location);
+                pnlOuterWrap.SetOrAppendCss(config.InstanceCssClass);
             }
         }
 
@@ -102,9 +102,9 @@ namespace mojoPortal.Web.EventCalendarUI
 
             moduleSettings = ModuleSettings.GetModuleSettings(moduleId);
             GmapApiKey = SiteUtils.GetGmapApiKey();
-			config = new CalendarConfiguration(ModuleSettings.GetModuleSettings(moduleId));
-            
+            config = new CalendarConfiguration(ModuleSettings.GetModuleSettings(moduleId));
+
             AddClassToBody("eventcaldetail");
         }
-	}
+    }
 }
