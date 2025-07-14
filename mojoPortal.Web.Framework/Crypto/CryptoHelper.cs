@@ -18,7 +18,7 @@ using log4net;
 
 namespace mojoPortal.Web.Framework
 {
-    
+
     public static class CryptoHelper
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(CryptoHelper));
@@ -33,7 +33,7 @@ namespace mojoPortal.Web.Framework
         [Obsolete("This method is obsolete because it does not work in medium trust hosting. It is recomended to use mojoPortal.Web.SiteUtils.Encrypt and Decrypt methods")]
         public static string Encrypt(string clearText)
         {
-           
+
             StringBuilder stringBuilder = new System.Text.StringBuilder();
 
             RSACryptoServiceProvider.UseMachineKeyStore = true;
@@ -49,10 +49,10 @@ namespace mojoPortal.Web.Framework
                 }
 
                 rsaProvider.FromXmlString(config.RsaKey);
-                  
+
                 byte[] encryptedStr;
                 encryptedStr = rsaProvider.Encrypt(Encoding.ASCII.GetBytes(clearText), false);
-                
+
                 for (int i = 0; i <= encryptedStr.Length - 1; i++)
                 {
                     if (i != encryptedStr.Length - 1)
@@ -78,7 +78,7 @@ namespace mojoPortal.Web.Framework
         [Obsolete("This method is obsolete because it does not work in medium trust hosting. It is recomended to use mojoPortal.Web.SiteUtils.Decrypt and Encrypt methods")]
         public static string Decrypt(string encryptedText)
         {
-  
+
             StringBuilder stringBuilder = new StringBuilder();
 
             RSACryptoServiceProvider.UseMachineKeyStore = true;
@@ -93,9 +93,9 @@ namespace mojoPortal.Web.Framework
                 }
 
                 rsaProvider.FromXmlString(config.RsaKey);
-    
+
                 byte[] decryptedStr = rsaProvider.Decrypt(StringToByteArray(encryptedText.Trim()), false);
-                
+
                 for (int i = 0; i <= decryptedStr.Length - 1; i++)
                 {
                     stringBuilder.Append(Convert.ToChar(decryptedStr[i]));
@@ -115,7 +115,7 @@ namespace mojoPortal.Web.Framework
 
             for (int i = 0; i <= s.Length - 1; i++)
             {
-                b[i] = Convert.ToByte(s[i],CultureInfo.InvariantCulture);
+                b[i] = Convert.ToByte(s[i], CultureInfo.InvariantCulture);
             }
             return b;
         }
@@ -127,7 +127,7 @@ namespace mojoPortal.Web.Framework
             {
                 Byte[] clearBytes = new UnicodeEncoding().GetBytes(cleanText);
 
-                Byte[] hashedBytes 
+                Byte[] hashedBytes
                     = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(clearBytes);
 
                 return BitConverter.ToString(hashedBytes);
@@ -142,13 +142,13 @@ namespace mojoPortal.Web.Framework
         //
 
         // TODO: move to config, should not be hard coded
-        private static byte[] key_192 = new byte[] 
-			{10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-				10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+        private static byte[] key_192 = new byte[]
+            {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
 
         private static byte[] iv_128 = new byte[]
-			{10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-				10, 10, 10, 10};
+            {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                10, 10, 10, 10};
 
         public static string EncryptRijndaelManaged(string value)
         {
@@ -158,7 +158,7 @@ namespace mojoPortal.Web.Framework
             MemoryStream memoryStream = new MemoryStream();
 
             CryptoStream cryptoStream = new CryptoStream(
-                memoryStream, 
+                memoryStream,
                 crypto.CreateEncryptor(key_192, iv_128),
                 CryptoStreamMode.Write);
 
@@ -198,7 +198,7 @@ namespace mojoPortal.Web.Framework
             return SignAndSecureData(new string[] { value });
         }
 
-        
+
 
         public static string SignAndSecureData(string[] values)
         {
@@ -231,11 +231,11 @@ namespace mojoPortal.Web.Framework
                 Core.Helpers.XmlHelper.AddNode(xmlDoc, "s", Convert.ToBase64String(signature, 0, signature.Length));
             }
 
-            
+
             return EncryptRijndaelManaged(xmlDoc.InnerXml);
         }
 
-        
+
         public static bool DecryptAndVerifyData(string input, out string[] values)
         {
             string xml = DecryptRijndaelManaged(input);
