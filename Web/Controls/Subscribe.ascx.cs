@@ -124,7 +124,7 @@ namespace mojoPortal.Web.ELetterUI
 
         protected void Page_Load(object sender, EventArgs e)
         {
-           
+
             LoadSettings();
             SetupScript();
             PopulateLabels();
@@ -178,7 +178,7 @@ namespace mojoPortal.Web.ELetterUI
                 pnlThanks.Visible = true;
                 UpdatePanel1.Update();
             }
-            
+
         }
 
         private void DoSubscribe()
@@ -210,9 +210,22 @@ namespace mojoPortal.Web.ELetterUI
 
         private void DoSubscribe(LetterInfo letter, string email)
         {
-            if (email == "email@gmail.com") { return; } //I've been seeing a lot of this from a bot
+            // sanitize and validate email to prevent log forging
+            string sanitizedEmail = email ?? string.Empty;
+            sanitizedEmail = sanitizedEmail.Replace("\r", "").Replace("\n", "");
+            try
+            {
+                var mailAddr = new System.Net.Mail.MailAddress(sanitizedEmail);
+                sanitizedEmail = mailAddr.Address;
+            }
+            catch (System.FormatException)
+            {
+                return;
+            }
 
-            LetterSubscriber s = subscriptions.Fetch(siteSettings.SiteGuid, letter.LetterInfoGuid, email);
+            if (sanitizedEmail.Equals("email@gmail.com", StringComparison.InvariantCultureIgnoreCase)) { return; } //I've been seeing a lot of this from a bot
+
+            LetterSubscriber s = subscriptions.Fetch(siteSettings.SiteGuid, letter.LetterInfoGuid, sanitizedEmail);
 
             bool needToSendVerification = false;
 
@@ -220,7 +233,7 @@ namespace mojoPortal.Web.ELetterUI
             {
                 s = new LetterSubscriber();
                 s.SiteGuid = siteSettings.SiteGuid;
-                s.EmailAddress = email;
+                s.EmailAddress = sanitizedEmail;
                 s.LetterInfoGuid = letter.LetterInfoGuid;
                 if (showFormatOptions)
                 {
@@ -231,7 +244,7 @@ namespace mojoPortal.Web.ELetterUI
                     s.UseHtml = htmlIsDefault;
                 }
 
-                if ((currentUser != null) && (string.Equals(currentUser.Email, email, StringComparison.InvariantCultureIgnoreCase)))
+                if ((currentUser != null) && (string.Equals(currentUser.Email, sanitizedEmail, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     s.UserGuid = currentUser.UserGuid;
                     s.IsVerified = true;
@@ -241,10 +254,8 @@ namespace mojoPortal.Web.ELetterUI
                     // user is not authenticated but may still exist
                     // attach userguid but don't flag as verified
                     // because we don't know that the user who submited the form is the account owner
-                    SiteUser siteUser = SiteUser.GetByEmail(siteSettings, email);
+                    SiteUser siteUser = SiteUser.GetByEmail(siteSettings, sanitizedEmail);
                     if (siteUser != null) { s.UserGuid = siteUser.UserGuid; }
-
-
                 }
                 s.IpAddress = SiteUtils.GetIP4Address();
                 subscriptions.Save(s);
@@ -255,9 +266,8 @@ namespace mojoPortal.Web.ELetterUI
                 {
                     log.Info(s.EmailAddress + " just subscribed to newsletter " + letter.Title);
                 }
-                    
 
-                if(!s.IsVerified)
+                if (!s.IsVerified)
                 {
                     needToSendVerification = true;
                 }
@@ -270,7 +280,7 @@ namespace mojoPortal.Web.ELetterUI
                 if (!s.IsVerified)
                 {
                     // if the current authenticated user has the same email mark it as verified
-                    if ((currentUser != null) && (string.Equals(currentUser.Email, email, StringComparison.InvariantCultureIgnoreCase)))
+                    if ((currentUser != null) && (string.Equals(currentUser.Email, sanitizedEmail, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         s.UserGuid = currentUser.UserGuid;
                         if (showFormatOptions)
@@ -280,7 +290,7 @@ namespace mojoPortal.Web.ELetterUI
                         subscriptions.Save(s);
                         subscriptions.Verify(s.SubscribeGuid, true, Guid.Empty);
                     }
-                    else if (s.BeginUtc < DateTime.UtcNow.AddDays(-WebConfigSettings.NewsletterReVerifcationAfterDays))
+                    else if (s.BeginUtc < DateTime.UtcNow.AddDays(-WebConfigSettings.NewsletterReVerficationAfterDays))
                     {
                         // if the user never verifed before and its been at least x days go ahead and send another chance to verify
                         needToSendVerification = true;
@@ -310,7 +320,7 @@ namespace mojoPortal.Web.ELetterUI
                     letter,
                     siteSettings);
 
-              
+
 
             }
 
@@ -374,7 +384,7 @@ namespace mojoPortal.Web.ELetterUI
                     rbPlainText.Checked = true;
                 }
             }
-            
+
 
         }
 
@@ -383,7 +393,7 @@ namespace mojoPortal.Web.ELetterUI
             siteSettings = CacheHelper.GetCurrentSiteSettings();
             siteRoot = SiteUtils.GetNavigationSiteRoot();
             spnFormat.Visible = showFormatOptions;
-            
+
             lnkMoreInfo.NavigateUrl = siteRoot + "/eletter/Default.aspx";
             lnkMoreInfo.Visible = showmoreInfoLink;
             if (showList)
@@ -421,14 +431,14 @@ namespace mojoPortal.Web.ELetterUI
             base.OnInit(e);
             this.Load += new EventHandler(Page_Load);
             btnSubscribe.Click += new EventHandler(btnSubscribe_Click);
-            
+
         }
 
-        
 
-        
 
-        
+
+
+
 
 
     }

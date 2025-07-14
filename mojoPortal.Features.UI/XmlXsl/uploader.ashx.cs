@@ -89,6 +89,8 @@ namespace mojoPortal.Features.UI.XmlXsl
             string newFileName = Path.GetFileName(file.FileName).ToCleanFileName(WebConfigSettings.ForceLowerCaseForUploadedFiles);
 
             string ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            ext = ext.Replace("\r", "").Replace("\n", "");
+
             if (!SiteUtils.IsAllowedUploadBrowseFile(ext, ".xml|.xsl"))
             {
                 log.Info("file extension was " + ext + " so returning 404");
@@ -100,7 +102,7 @@ namespace mojoPortal.Features.UI.XmlXsl
             context.Response.ContentType = "text/plain";//"application/json";
             var r = new System.Collections.Generic.List<UploadFilesResult>();
             JavaScriptSerializer js = new JavaScriptSerializer();
-            
+
 
             string destPath;
 
@@ -111,9 +113,9 @@ namespace mojoPortal.Features.UI.XmlXsl
                     destPath = Server.MapPath(xmlBasePath + newFileName);
 
                     if (File.Exists(destPath))
-                        {
-                            File.Delete(destPath);
-                        }
+                    {
+                        File.Delete(destPath);
+                    }
 
                     file.SaveAs(destPath);
 
@@ -124,9 +126,9 @@ namespace mojoPortal.Features.UI.XmlXsl
                     destPath = Server.MapPath(xslBasePath + newFileName);
 
                     if (File.Exists(destPath))
-                        {
-                            File.Delete(destPath);
-                        }
+                    {
+                        File.Delete(destPath);
+                    }
 
                     file.SaveAs(destPath);
 

@@ -52,9 +52,9 @@ namespace mojoPortal.Web.SearchUI
 
         }
 
-        
 
-        
+
+
 
         #endregion
 
@@ -68,7 +68,7 @@ namespace mojoPortal.Web.SearchUI
         }
 
         private void PopulateControls()
-        {     
+        {
             TitleControl.Visible = !this.RenderInWebPartMode;
             if (this.ModuleConfiguration != null)
             {
@@ -90,12 +90,16 @@ namespace mojoPortal.Web.SearchUI
             pageNumber = Convert.ToInt32(e.CommandArgument);
             pgr.CurrentIndex = pageNumber;
             BindSearch();
-            
+
         }
 
         private void BindSearch()
         {
             queryErrorOccurred = false;
+
+            string rawQuery = txtSearch.Text ?? string.Empty;
+            // Remove CR and LF to prevent log forging
+            string sanitizedQuery = rawQuery.Replace("\r", " ").Replace("\n", " ").Trim();
 
             mojoPortal.SearchIndex.IndexItemCollection searchResults = mojoPortal.SearchIndex.IndexHelper.Search(
                 siteSettings.SiteId,
@@ -104,7 +108,7 @@ namespace mojoPortal.Web.SearchUI
                 config.GetFeatureGuids(),
                 modifiedBeginDate,
                 modifiedEndDate,
-                txtSearch.Text,
+                sanitizedQuery,
                 WebConfigSettings.EnableSearchResultsHighlighting,
                 WebConfigSettings.SearchResultsFragmentSize,
                 pageNumber,
@@ -114,7 +118,7 @@ namespace mojoPortal.Web.SearchUI
                 out queryErrorOccurred);
 
             totalPages = 1;
-            
+
             if (pageSize > 0) totalPages = totalHits / pageSize;
 
             if (totalHits <= pageSize)
@@ -131,13 +135,13 @@ namespace mojoPortal.Web.SearchUI
                 }
             }
 
-            
+
             pgr.ShowFirstLast = true;
             pgr.PageSize = pageSize;
             pgr.PageCount = totalPages;
             pgr.Visible = (totalPages > 1);
-            
-            
+
+
 
             rptResults.DataSource = searchResults;
             rptResults.DataBind();
@@ -275,7 +279,7 @@ namespace mojoPortal.Web.SearchUI
         {
             //TitleControl.EditText = "Edit";
 
-            
+
         }
 
         private void LoadSettings()
@@ -317,12 +321,12 @@ namespace mojoPortal.Web.SearchUI
             else
             {
                 Guid[] featureGuids = config.GetFeatureGuids();
-                if(featureGuids.Length > 1)
+                if (featureGuids.Length > 1)
                 {
                     Search.FeatureGuid = featureGuids[0];
                 }
             }
-            
+
         }
 
 
@@ -334,7 +338,7 @@ namespace mojoPortal.Web.UI
     /// <summary>
     /// this control doesn't render anything, it is used only as a themeable collection of settings for things we would like to be able to configure from theme.skin
     /// </summary>
-public class SearchModuleConfiguration
+    public class SearchModuleConfiguration
     {
         public SearchModuleConfiguration()
         { }
@@ -377,7 +381,7 @@ public class SearchModuleConfiguration
             }
 
         }
-        
+
 
         private void LoadSettings(Hashtable settings)
         {
@@ -400,7 +404,7 @@ public class SearchModuleConfiguration
 
             //showLastModDate = WebUtils.ParseBoolFromHashtable(settings, "ShowLastModDate", showLastModDate);
 
-            
+
             //maxRecentItemsToGet = WebUtils.ParseInt32FromHashtable(settings, "MaxRecentItemsToGet", maxRecentItemsToGet);
 
             //maxDaysOldRecentItemsToGet = WebUtils.ParseInt32FromHashtable(settings, "MaxDaysOldRecentItemsToGet", maxDaysOldRecentItemsToGet);
@@ -411,7 +415,7 @@ public class SearchModuleConfiguration
                 searchableFeature = settings["SearchableFeature"].ToString();
             }
 
-            
+
 
         }
 
@@ -483,7 +487,7 @@ public class SearchModuleConfiguration
         //{
         //    get { return maxDaysOldRecentItemsToGet; }
         //}
-        
+
 
 
     }

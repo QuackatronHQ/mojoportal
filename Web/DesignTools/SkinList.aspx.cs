@@ -1,6 +1,6 @@
 ﻿// Author:					
-// Created:					2011-03-14
-// Last Modified:			2013-04-05
+// Created:                 2011-03-14
+// Last Modified:           2013-04-05
 // 
 // The use and distribution terms for this software are covered by the 
 // Common Public License 1.0 (http://opensource.org/licenses/cpl.php)  
@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IO;
 using System.Web;
 using System.Web.UI;
+using System.Text.RegularExpressions;
 //using Brettle.Web.NeatUpload;
 using mojoPortal.Business.WebHelpers;
 using mojoPortal.Web.Components;
@@ -57,7 +58,7 @@ namespace mojoPortal.Web.AdminUI
         {
             Page.Validate("upload");
 
-            if ((Page.IsValid)&&(uploader.HasFile))
+            if ((Page.IsValid) && (uploader.HasFile))
             {
                 //temporarily store the .zip in the /Data/Sites/[SiteID]/systemfiles folder
                 string destFolder = SiteUtils.GetSiteSystemFolder();
@@ -68,8 +69,17 @@ namespace mojoPortal.Web.AdminUI
                     di.Create();
                 }
 
-                string destPath = Path.Combine(destFolder, 
-                    Path.GetFileName(uploader.FileName).ToCleanFileName(WebConfigSettings.ForceLowerCaseForUploadedFiles));
+                string rawFileName = Path.GetFileName(uploader.FileName);
+                string cleanedFileName = rawFileName.ToCleanFileName(WebConfigSettings.ForceLowerCaseForUploadedFiles);
+                // remove any carriage return or newline characters to prevent log forging
+                string sanitizedFileName = cleanedFileName.Replace("\r", string.Empty).Replace("\n", string.Empty);
+                // validate the file name contains only allowed characters
+                if (!Regex.IsMatch(sanitizedFileName, "^[a-zA-Z0-9_\-\.]+$"))
+                {
+                    return;
+                }
+
+                string destPath = Path.Combine(destFolder, sanitizedFileName);
 
                 if (File.Exists(destPath))
                 {
@@ -77,7 +87,7 @@ namespace mojoPortal.Web.AdminUI
                 }
 
                 uploader.SaveAs(destPath);
-                
+
 
                 // process the .zip, extract files
                 SkinHelper helper = new SkinHelper();
@@ -128,7 +138,7 @@ namespace mojoPortal.Web.AdminUI
 
             btnUpload.Text = Resource.UploadSkinButton;
             chkOverwrite.Text = Resource.OverwriteExistingSkinFiles;
-            regexZipFile.ErrorMessage = Resource.OnlyZipFilesAllowed ;
+            regexZipFile.ErrorMessage = Resource.OnlyZipFilesAllowed;
             reqZipFile.ErrorMessage = Resource.ZipFileIsRequired;
 
             PreviewText = Resource.View;
@@ -175,7 +185,7 @@ namespace mojoPortal.Web.AdminUI
 
         }
 
-       
+
 
 
         #region OnInit
@@ -191,7 +201,7 @@ namespace mojoPortal.Web.AdminUI
 
         }
 
-        
+
 
         #endregion
     }
