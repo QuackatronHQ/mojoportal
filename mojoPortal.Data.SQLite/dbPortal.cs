@@ -21,10 +21,10 @@ using System.Web;
 using log4net;
 using Mono.Data.Sqlite;
 
-namespace mojoPortal.Data 
+namespace mojoPortal.Data
 {
-	
-	public static class DBPortal 
+
+    public static class DBPortal
     {
         // Create a logger for use in this class
         private static readonly ILog log = LogManager.GetLogger(typeof(DBPortal));
@@ -39,31 +39,31 @@ namespace mojoPortal.Data
             string connectionString = ConfigurationManager.AppSettings["SqliteConnectionString"];
             if (connectionString == "defaultdblocation")
             {
-				FileInfo theDb = new FileInfo(System.Web.Hosting.HostingEnvironment.MapPath("~/Data/sqlitedb/mojo.db.config"));
-				FileInfo seedDb = new FileInfo(System.Web.Hosting.HostingEnvironment.MapPath("~/Data/sqlitedb/mojo-seed.db.config"));
+                FileInfo theDb = new FileInfo(System.Web.Hosting.HostingEnvironment.MapPath("~/Data/sqlitedb/mojo.db.config"));
+                FileInfo seedDb = new FileInfo(System.Web.Hosting.HostingEnvironment.MapPath("~/Data/sqlitedb/mojo-seed.db.config"));
 
-				if (!theDb.Exists && seedDb.Exists && Convert.ToBoolean(ConfigurationManager.AppSettings["TryToCopySQLiteSeedDatabase"].ToString()))
-				{
-					seedDb.CopyTo("~/Data/sqlitedb/mojo.db.config");
-				}
-				
-				connectionString = "version=3,URI=file:"
-					+ System.Web.Hosting.HostingEnvironment.MapPath("~/Data/sqlitedb/mojo.db.config");				
-			}
+                if (!theDb.Exists && seedDb.Exists && Convert.ToBoolean(ConfigurationManager.AppSettings["TryToCopySQLiteSeedDatabase"].ToString()))
+                {
+                    seedDb.CopyTo("~/Data/sqlitedb/mojo.db.config");
+                }
+
+                connectionString = "version=3,URI=file:"
+                    + System.Web.Hosting.HostingEnvironment.MapPath("~/Data/sqlitedb/mojo.db.config");
+            }
 
             return connectionString;
-            
+
         }
 
         public static void EnsureDatabase()
         {
         }
 
-        
+
         #region Versioning and Upgrade Helpers
 
-       
-       
+
+
 
         #region Schema Table Methods
 
@@ -135,10 +135,10 @@ namespace mojoPortal.Data
             arParams[5].Value = revision;
 
             int rowsAffected = SqliteHelper.ExecuteNonQuery(
-                GetConnectionString(), 
-                sqlCommand.ToString(), 
+                GetConnectionString(),
+                sqlCommand.ToString(),
                 arParams);
-            
+
             return (rowsAffected > 0);
 
         }
@@ -270,7 +270,7 @@ namespace mojoPortal.Data
             sqlCommand.Append("ORDER BY ApplicationName ");
             sqlCommand.Append(";");
 
-            
+
             return SqliteHelper.ExecuteReader(
                 GetConnectionString(),
                 sqlCommand.ToString(),
@@ -474,8 +474,8 @@ namespace mojoPortal.Data
 
         #endregion
 
-       
-		#region DatabaseHelper
+
+        #region DatabaseHelper
 
         public static DataTable GetTableFromDataReader(IDataReader reader)
         {
@@ -618,7 +618,7 @@ namespace mojoPortal.Data
 
         public static bool DatabaseHelperCanAlterSchema(String overrideConnectionInfo)
         {
-            
+
             bool result = true;
             // Make sure we can create, alter and drop tables
 
@@ -663,7 +663,7 @@ namespace mojoPortal.Data
             {
                 result = false;
             }
-            
+
 
             sqlCommand = new StringBuilder();
             sqlCommand.Append("DROP TABLE mp_Testdb;");
@@ -680,7 +680,7 @@ namespace mojoPortal.Data
             {
                 result = false;
             }
-            
+
 
             return result;
         }
@@ -697,7 +697,7 @@ namespace mojoPortal.Data
             {
                 DatabaseHelperRunScript(sqlCommand.ToString(), GetConnectionString());
             }
-            catch 
+            catch
             {
                 result = false;
             }
@@ -760,10 +760,10 @@ namespace mojoPortal.Data
 
         public static bool DatabaseHelperUpdateTableField(
             String connectionString,
-            String tableName, 
+            String tableName,
             String keyFieldName,
             String keyFieldValue,
-            String dataFieldName, 
+            String dataFieldName,
             String dataFieldValue,
             String additionalWhere)
         {
@@ -779,10 +779,10 @@ namespace mojoPortal.Data
             StringBuilder sqlCommand = new StringBuilder();
             sqlCommand.Append("UPDATE " + tableName + " ");
             sqlCommand.Append(" SET " + dataFieldName + " = :fieldValue ");
-            sqlCommand.Append(" WHERE " + keyFieldName + " = " + keyFieldValue );
+            sqlCommand.Append(" WHERE " + keyFieldName + " = " + keyFieldValue);
             sqlCommand.Append(" " + additionalWhere + " ");
             sqlCommand.Append(" ; ");
-            
+
             SqliteParameter[] arParams = new SqliteParameter[1];
 
             arParams[0] = new SqliteParameter(":fieldValue", DbType.String);
@@ -802,7 +802,7 @@ namespace mojoPortal.Data
             }
 
             return result;
-            
+
         }
 
         public static bool DatabaseHelperUpdateTableField(
@@ -844,22 +844,22 @@ namespace mojoPortal.Data
 
         }
 
-		public static IDataReader DatabaseHelperGetReader(
-			String connectionString,
-			String tableName, 
-			String whereClause)
-		{
-			StringBuilder sqlCommand = new StringBuilder();
-			sqlCommand.Append("SELECT * ");
-			sqlCommand.Append("FROM " + tableName + " ");
-			sqlCommand.Append(whereClause);
-			sqlCommand.Append(" ; ");
+        public static IDataReader DatabaseHelperGetReader(
+            String connectionString,
+            String tableName,
+            String whereClause)
+        {
+            StringBuilder sqlCommand = new StringBuilder();
+            sqlCommand.Append("SELECT * ");
+            sqlCommand.Append("FROM " + tableName + " ");
+            sqlCommand.Append(whereClause);
+            sqlCommand.Append(" ; ");
 
-			return SqliteHelper.ExecuteReader(
-				connectionString, 
-				sqlCommand.ToString());
+            return SqliteHelper.ExecuteReader(
+                connectionString,
+                sqlCommand.ToString());
 
-		}
+        }
 
         public static IDataReader DatabaseHelperGetReader(
             string connectionString,
@@ -889,24 +889,24 @@ namespace mojoPortal.Data
 
         }
 
-		public static DataTable DatabaseHelperGetTable(
-			String connectionString,
-			String tableName, 
-			String whereClause)
-		{
-			StringBuilder sqlCommand = new StringBuilder();
-			sqlCommand.Append("SELECT * ");
-			sqlCommand.Append("FROM " + tableName + " ");
-			sqlCommand.Append(whereClause);
-			sqlCommand.Append(" ; ");
+        public static DataTable DatabaseHelperGetTable(
+            String connectionString,
+            String tableName,
+            String whereClause)
+        {
+            StringBuilder sqlCommand = new StringBuilder();
+            sqlCommand.Append("SELECT * ");
+            sqlCommand.Append("FROM " + tableName + " ");
+            sqlCommand.Append(whereClause);
+            sqlCommand.Append(" ; ");
 
-			DataSet ds = SqliteHelper.ExecuteDataset(
-				connectionString, 
-				sqlCommand.ToString());
+            DataSet ds = SqliteHelper.ExecuteDataset(
+                connectionString,
+                sqlCommand.ToString());
 
-			return ds.Tables[0];
+            return ds.Tables[0];
 
-		}
+        }
 
         public static void DatabaseHelperDoForumVersion2202PostUpgradeTasks(
             String overrideConnectionInfo)
@@ -1097,7 +1097,7 @@ namespace mojoPortal.Data
 
             foreach (DataRow row in dataTable.Rows)
             {
-               
+
                 DBLetterSubscription.Create(
                     Guid.NewGuid(),
                     new Guid(row["SiteGuid"].ToString()),
@@ -1438,11 +1438,11 @@ namespace mojoPortal.Data
             return false;
         }
 
-        
 
-		#endregion
 
-        
+        #endregion
+
+
 
         //#region Private Message System
 
@@ -2244,9 +2244,9 @@ namespace mojoPortal.Data
 
         //#endregion
 
-        
 
-        
+
+
 
     }
 }
