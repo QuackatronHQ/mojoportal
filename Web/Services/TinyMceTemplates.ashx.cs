@@ -46,93 +46,93 @@ namespace mojoPortal.Web.Services
         //private string templateGuidString = string.Empty;
         //private string siteRoot = string.Empty;
         //private string comma = string.Empty;
-		private string skinRootFolder = string.Empty;
-		private string currentSkin = string.Empty;
-		private FileInfo skinTemplatesFile = null;
-		private FileInfo systemTemplatesFile = null;
+        private string skinRootFolder = string.Empty;
+        private string currentSkin = string.Empty;
+        private FileInfo skinTemplatesFile = null;
+        private FileInfo systemTemplatesFile = null;
 
 
-		//private const string jQueryAccordionGuid = "e110400d-c92d-4d78-a830-236f584af115";
-  //      private const string jQueryAccordionNoHeightGuid = "08e2a92f-d346-416b-b37b-bd82acf51514";
-  //      private const string jQueryTabsGuid = "7efaeb03-a1f9-4b08-9ffd-46237ba993b0";
-  //      private const string YuiTabsGuid = "046dae46-5301-45a5-bcbf-0b87c2d9e919";
-  //      private const string faqGuid = "ad5f5b63-d07a-4e6b-bbd5-2b6201743dab";
-  //      private const string Columns2Over1Guid = "cfb9e9c4-b740-42f5-8c16-1957b536b8e9";
-  //      private const string Columns3Over1Guid = "9ac79a8d-7dfd-4485-af3c-b8fdf256bbb8";
-  //      private const string Columns4Over1Guid = "28ae8c68-b619-4e23-8dde-17d0a34ee7c6";
+        //private const string jQueryAccordionGuid = "e110400d-c92d-4d78-a830-236f584af115";
+        //      private const string jQueryAccordionNoHeightGuid = "08e2a92f-d346-416b-b37b-bd82acf51514";
+        //      private const string jQueryTabsGuid = "7efaeb03-a1f9-4b08-9ffd-46237ba993b0";
+        //      private const string YuiTabsGuid = "046dae46-5301-45a5-bcbf-0b87c2d9e919";
+        //      private const string faqGuid = "ad5f5b63-d07a-4e6b-bbd5-2b6201743dab";
+        //      private const string Columns2Over1Guid = "cfb9e9c4-b740-42f5-8c16-1957b536b8e9";
+        //      private const string Columns3Over1Guid = "9ac79a8d-7dfd-4485-af3c-b8fdf256bbb8";
+        //      private const string Columns4Over1Guid = "28ae8c68-b619-4e23-8dde-17d0a34ee7c6";
 
         public void ProcessRequest(HttpContext context)
         {
             siteSettings = CacheHelper.GetCurrentSiteSettings();
             if (siteSettings == null)
-            {  
+            {
                 return;
             }
 
-			//siteRoot = SiteUtils.GetNavigationSiteRoot();
-			skinRootFolder = SiteUtils.GetSiteSkinFolderPath();
-			currentSkin = siteSettings.Skin;
-			
-			if (HttpContext.Current.Request.Params.Get("skin") != null)
-			{
-				currentSkin = SiteUtils.SanitizeSkinParam(HttpContext.Current.Request.Params.Get("skin"));
-			}
+            //siteRoot = SiteUtils.GetNavigationSiteRoot();
+            skinRootFolder = SiteUtils.GetSiteSkinFolderPath();
+            currentSkin = siteSettings.Skin;
 
-			skinTemplatesFile = new FileInfo($"{skinRootFolder + currentSkin}\\config\\editortemplates.json");
-			systemTemplatesFile = new FileInfo(HttpContext.Current.Server.MapPath("~/data/style/editortemplates.json"));
+            if (HttpContext.Current.Request.Params.Get("skin") != null)
+            {
+                currentSkin = SiteUtils.SanitizeSkinParam(HttpContext.Current.Request.Params.Get("skin"));
+            }
 
-			RenderJsonList(context);
+            skinTemplatesFile = new FileInfo($"{skinRootFolder + currentSkin}\\config\\editortemplates.json");
+            systemTemplatesFile = new FileInfo(HttpContext.Current.Server.MapPath("~/data/style/editortemplates.json"));
+
+            RenderJsonList(context);
 
         }
 
         private void RenderJsonList(HttpContext context)
-        {          
+        {
             context.Response.ContentEncoding = new UTF8Encoding();
-			context.Response.ContentType = "application/json";
+            context.Response.ContentType = "application/json";
 
-			var templatesOrder = AppConfig.EditorTemplatesOrder.SplitOnCharAndTrim(',');
+            var templatesOrder = AppConfig.EditorTemplatesOrder.SplitOnCharAndTrim(',');
             var collection = new EditorTemplateCollection();
 
-			foreach (var i in templatesOrder)
-			{
+            foreach (var i in templatesOrder)
+            {
 
-				switch (i)
-				{
-					case "site":
+                switch (i)
+                {
+                    case "site":
 
-						//collection.ImagesPath = $"{siteRoot}/Data/Sites/{siteSettings.SiteId.ToInvariantString()}/htmltemplateimages/";
+                        //collection.ImagesPath = $"{siteRoot}/Data/Sites/{siteSettings.SiteId.ToInvariantString()}/htmltemplateimages/";
 
-						//add site content templates to list
-						foreach (var t in ContentTemplate.GetAll(siteSettings.SiteGuid))
-						{
-							if (!WebUser.IsInRoles(t.AllowedRoles)) { continue; }
+                        //add site content templates to list
+                        foreach (var t in ContentTemplate.GetAll(siteSettings.SiteGuid))
+                        {
+                            if (!WebUser.IsInRoles(t.AllowedRoles)) { continue; }
 
-							collection.Templates.Add(new EditorTemplate
-							{
-								Title = t.Title,
-								Image = t.ImageFileName,
-								Description = t.Description,
-								Html = t.Body.RemoveLineBreaks()
-							});
-						}
+                            collection.Templates.Add(new EditorTemplate
+                            {
+                                Title = t.Title,
+                                Image = t.ImageFileName,
+                                Description = t.Description,
+                                Html = t.Body.RemoveLineBreaks()
+                            });
+                        }
 
-						break;
-					case "system":
-						if (!systemTemplatesFile.Exists) break;
+                        break;
+                    case "system":
+                        if (!systemTemplatesFile.Exists) break;
 
-						collection.Templates.AddRange(new EditorTemplateCollection(systemTemplatesFile).Templates);
-                        
-						break;
-					case "skin":
-						if (!skinTemplatesFile.Exists) break;
+                        collection.Templates.AddRange(new EditorTemplateCollection(systemTemplatesFile).Templates);
 
-						collection.Templates.AddRange(new EditorTemplateCollection(skinTemplatesFile).Templates);
+                        break;
+                    case "skin":
+                        if (!skinTemplatesFile.Exists) break;
 
-						break;
-					default:
-						break;
-				}
-			}
+                        collection.Templates.AddRange(new EditorTemplateCollection(skinTemplatesFile).Templates);
+
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             var templates = new TinyMceTemplateCollection(collection).Templates;
             foreach (var t in templates)
@@ -144,7 +144,7 @@ namespace mojoPortal.Web.Services
             }
 
             context.Response.Write(JsonConvert.SerializeObject(templates));
-            
+
         }
 
 
@@ -228,7 +228,7 @@ namespace mojoPortal.Web.Services
         //    return false;
         //}
 
-		public bool IsReusable
+        public bool IsReusable
         {
             get
             {
@@ -238,17 +238,17 @@ namespace mojoPortal.Web.Services
     }
 
 
-	public class TinyMceTemplateCollection
-	{
-		[JsonProperty(PropertyName = "imagesPath")]
-		public string ImagesPath { get; set; } = string.Empty;
+    public class TinyMceTemplateCollection
+    {
+        [JsonProperty(PropertyName = "imagesPath")]
+        public string ImagesPath { get; set; } = string.Empty;
 
         [JsonProperty(PropertyName = "templates")]
         public List<TinyMceTemplate> Templates { get; set; }
-		public TinyMceTemplateCollection()
-		{
-			Templates = new List<TinyMceTemplate>();
-		}
+        public TinyMceTemplateCollection()
+        {
+            Templates = new List<TinyMceTemplate>();
+        }
 
         public TinyMceTemplateCollection(EditorTemplateCollection collection)
         {
@@ -256,30 +256,31 @@ namespace mojoPortal.Web.Services
             Templates = new List<TinyMceTemplate>();
             foreach (var template in collection.Templates)
             {
-                Templates.Add(new TinyMceTemplate {
+                Templates.Add(new TinyMceTemplate
+                {
                     Title = template.Title ?? "",
                     Description = template.Description ?? "",
-					Content = template.Html ?? "",
+                    Content = template.Html ?? "",
                 });
             }
         }
-	}
+    }
 
-	public class TinyMceTemplate
-	{
-		[JsonProperty(PropertyName = "title")]
-		public string Title { get; set; } = string.Empty;
+    public class TinyMceTemplate
+    {
+        [JsonProperty(PropertyName = "title")]
+        public string Title { get; set; } = string.Empty;
 
-		[JsonProperty(PropertyName = "description")]
-		public string Description { get; set; } = string.Empty;
+        [JsonProperty(PropertyName = "description")]
+        public string Description { get; set; } = string.Empty;
 
-		[JsonProperty(PropertyName = "content")]
-		public string Content { get; set; } = string.Empty;
+        [JsonProperty(PropertyName = "content")]
+        public string Content { get; set; } = string.Empty;
 
-		public bool ShouldSerializeDescription()
-		{
-			return Description != null;
-		}
+        public bool ShouldSerializeDescription()
+        {
+            return Description != null;
+        }
         public TinyMceTemplate() { }
         public TinyMceTemplate(EditorTemplate template)
         {
@@ -287,7 +288,7 @@ namespace mojoPortal.Web.Services
             Description = template.Description;
             Content = template.Html;
         }
-	}
+    }
 
 
 }
