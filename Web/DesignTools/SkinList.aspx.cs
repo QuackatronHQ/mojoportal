@@ -58,7 +58,7 @@ namespace mojoPortal.Web.AdminUI
         {
             Page.Validate("upload");
 
-            if ((Page.IsValid)&&(uploader.HasFile))
+            if ((Page.IsValid) && (uploader.HasFile))
             {
                 //temporarily store the .zip in the /Data/Sites/[SiteID]/systemfiles folder
                 string destFolder = SiteUtils.GetSiteSystemFolder();
@@ -87,7 +87,7 @@ namespace mojoPortal.Web.AdminUI
                 }
 
                 uploader.SaveAs(destPath);
-                
+
 
                 // process the .zip, extract files
                 SkinHelper helper = new SkinHelper();
@@ -138,7 +138,7 @@ namespace mojoPortal.Web.AdminUI
 
             btnUpload.Text = Resource.UploadSkinButton;
             chkOverwrite.Text = Resource.OverwriteExistingSkinFiles;
-            regexZipFile.ErrorMessage = Resource.OnlyZipFilesAllowed ;
+            regexZipFile.ErrorMessage = Resource.OnlyZipFilesAllowed;
             reqZipFile.ErrorMessage = Resource.ZipFileIsRequired;
 
             PreviewText = Resource.View;
@@ -185,7 +185,7 @@ namespace mojoPortal.Web.AdminUI
 
         }
 
-       
+
 
 
         #region OnInit
@@ -201,7 +201,7 @@ namespace mojoPortal.Web.AdminUI
 
         }
 
-        
+
 
         #endregion
     }

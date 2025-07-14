@@ -30,7 +30,7 @@ namespace mojoPortal.Business.WebHelpers.UserRegisteredHandlers
             //if (sender == null) return;
             if (e == null) return;
             if (e.SiteUser == null) return;
-            
+
             // do nothing
             string sanitizedEmail = e.SiteUser.Email;
             if (sanitizedEmail != null)

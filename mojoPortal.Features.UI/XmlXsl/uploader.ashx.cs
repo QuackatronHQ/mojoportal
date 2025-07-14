@@ -102,7 +102,7 @@ namespace mojoPortal.Features.UI.XmlXsl
             context.Response.ContentType = "text/plain";//"application/json";
             var r = new System.Collections.Generic.List<UploadFilesResult>();
             JavaScriptSerializer js = new JavaScriptSerializer();
-            
+
 
             string destPath;
 
@@ -113,9 +113,9 @@ namespace mojoPortal.Features.UI.XmlXsl
                     destPath = Server.MapPath(xmlBasePath + newFileName);
 
                     if (File.Exists(destPath))
-                        {
-                            File.Delete(destPath);
-                        }
+                    {
+                        File.Delete(destPath);
+                    }
 
                     file.SaveAs(destPath);
 
@@ -126,9 +126,9 @@ namespace mojoPortal.Features.UI.XmlXsl
                     destPath = Server.MapPath(xslBasePath + newFileName);
 
                     if (File.Exists(destPath))
-                        {
-                            File.Delete(destPath);
-                        }
+                    {
+                        File.Delete(destPath);
+                    }
 
                     file.SaveAs(destPath);
 

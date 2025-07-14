@@ -124,7 +124,7 @@ namespace mojoPortal.Web.ELetterUI
 
         protected void Page_Load(object sender, EventArgs e)
         {
-           
+
             LoadSettings();
             SetupScript();
             PopulateLabels();
@@ -178,7 +178,7 @@ namespace mojoPortal.Web.ELetterUI
                 pnlThanks.Visible = true;
                 UpdatePanel1.Update();
             }
-            
+
         }
 
         private void DoSubscribe()
@@ -267,7 +267,7 @@ namespace mojoPortal.Web.ELetterUI
                     log.Info(s.EmailAddress + " just subscribed to newsletter " + letter.Title);
                 }
 
-                if(!s.IsVerified)
+                if (!s.IsVerified)
                 {
                     needToSendVerification = true;
                 }
@@ -320,7 +320,7 @@ namespace mojoPortal.Web.ELetterUI
                     letter,
                     siteSettings);
 
-              
+
 
             }
 
@@ -384,7 +384,7 @@ namespace mojoPortal.Web.ELetterUI
                     rbPlainText.Checked = true;
                 }
             }
-            
+
 
         }
 
@@ -393,7 +393,7 @@ namespace mojoPortal.Web.ELetterUI
             siteSettings = CacheHelper.GetCurrentSiteSettings();
             siteRoot = SiteUtils.GetNavigationSiteRoot();
             spnFormat.Visible = showFormatOptions;
-            
+
             lnkMoreInfo.NavigateUrl = siteRoot + "/eletter/Default.aspx";
             lnkMoreInfo.Visible = showmoreInfoLink;
             if (showList)
@@ -431,14 +431,14 @@ namespace mojoPortal.Web.ELetterUI
             base.OnInit(e);
             this.Load += new EventHandler(Page_Load);
             btnSubscribe.Click += new EventHandler(btnSubscribe_Click);
-            
+
         }
 
-        
 
-        
 
-        
+
+
+
 
 
     }

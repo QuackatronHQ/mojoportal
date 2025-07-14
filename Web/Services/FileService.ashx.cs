@@ -58,23 +58,23 @@ namespace mojoPortal.Web.Services
         HttpPostedFile fileUploaded = null;
         private JavaScriptSerializer serializer = new JavaScriptSerializer();
 
-       
+
         public void ProcessRequest(HttpContext context)
         {
             try
             {
                 LoadSettings(context);
 
-                if(WebConfigSettings.FileServiceRejectFishyPosts)
+                if (WebConfigSettings.FileServiceRejectFishyPosts)
                 {
-                    if(SiteUtils.IsFishyPost(context.Request))
+                    if (SiteUtils.IsFishyPost(context.Request))
                     {
                         RenderJsonResult(context, OpResult.Error);
                         return;
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 log.Error(ex);
                 RenderJsonResult(context, OpResult.Error);
@@ -82,7 +82,7 @@ namespace mojoPortal.Web.Services
             }
 
             //will be null if user has not permissions
-            if ((fileSystem == null)||(!fileSystem.UserHasUploadPermission))
+            if ((fileSystem == null) || (!fileSystem.UserHasUploadPermission))
             {
                 //log.Info("Could not load file system or user not allowed so blocking access.");
                 RenderJsonResult(context, OpResult.Denied);
@@ -156,7 +156,7 @@ namespace mojoPortal.Web.Services
                 if (OnFileDownloading(virtualPath))
                 {
                     WebFile file = fileSystem.RetrieveFile(virtualPath);
-                    
+
                     if (file != null)
                     {
                         if (!fileSystem.Permission.IsExtAllowed(VirtualPathUtility.GetExtension(file.Name)))
@@ -199,8 +199,8 @@ namespace mojoPortal.Web.Services
 
                             return;
                         }
-                        
-                        
+
+
                     }
                 }
             }
@@ -238,7 +238,7 @@ namespace mojoPortal.Web.Services
                 return;
             }
 
-            
+
             SiteSettings siteSettings = CacheHelper.GetCurrentSiteSettings();
             if (siteSettings == null)
             {
@@ -246,8 +246,8 @@ namespace mojoPortal.Web.Services
                 return;
             }
 
-            bool canAccess = (WebUser.IsAdminOrContentAdmin 
-                || WebUser.IsInRoles(siteSettings.RolesThatCanDeleteFilesInEditor) 
+            bool canAccess = (WebUser.IsAdminOrContentAdmin
+                || WebUser.IsInRoles(siteSettings.RolesThatCanDeleteFilesInEditor)
                 || SiteUtils.UserIsSiteEditor());
 
             if (!canAccess)
@@ -290,12 +290,12 @@ namespace mojoPortal.Web.Services
                 if (file.ContentLength > fileSystem.Permission.MaxSizePerFile)
                 {
                     log.Info("upload rejected due to fileSystem.Permission.MaxSizePerFile");
-                    doUpload = false;    
+                    doUpload = false;
                 }
                 else if (fileSystem.CountAllFiles() >= fileSystem.Permission.MaxFiles)
                 {
                     log.Info("upload rejected due to fileSystem.Permission.MaxFiles");
-                    doUpload = false; 
+                    doUpload = false;
                 }
                 else if (fileSystem.GetTotalSize() + file.ContentLength >= fileSystem.Permission.Quota)
                 {
@@ -391,7 +391,7 @@ namespace mojoPortal.Web.Services
             {
                 HttpPostedFile file = context.Request.Files[f];
 
-                string ext = System.IO.Path.GetExtension(file.FileName).ToLower().Replace(".",string.Empty);
+                string ext = System.IO.Path.GetExtension(file.FileName).ToLower().Replace(".", string.Empty);
 
                 if (ext == "zip")
                 {
@@ -420,7 +420,7 @@ namespace mojoPortal.Web.Services
                         Type = file.ContentType
                     });
 
-                }     
+                }
             }
 
             var uploadedFiles = new
@@ -443,15 +443,15 @@ namespace mojoPortal.Web.Services
             }
 
             SiteSettings siteSettings = CacheHelper.GetCurrentSiteSettings();
-            if (siteSettings == null) 
+            if (siteSettings == null)
             {
                 log.Info("Null SiteSettings so returning 404");
                 context.Response.StatusCode = 404;
-                return; 
+                return;
             }
             if ((!WebUser.IsInRoles(siteSettings.GeneralBrowseAndUploadRoles))
-                &&(!WebUser.IsInRoles(siteSettings.UserFilesBrowseAndUploadRoles))
-                &&(!WebUser.IsContentAdmin)
+                && (!WebUser.IsInRoles(siteSettings.UserFilesBrowseAndUploadRoles))
+                && (!WebUser.IsContentAdmin)
                 )
             {
                 log.Info("user not in allowed upload roles so returning 404");
@@ -528,20 +528,20 @@ namespace mojoPortal.Web.Services
             {
                 log.Info("upload rejected due to fileSystem.Permission.MaxSizePerFile");
                 doUpload = false;
-                
+
             }
             else if (fileSystem.CountAllFiles() >= fileSystem.Permission.MaxFiles)
             {
                 log.Info("upload rejected due to fileSystem.Permission.MaxFiles");
                 doUpload = false;
-                
+
 
             }
             else if (fileSystem.GetTotalSize() + contentLength >= fileSystem.Permission.Quota)
             {
                 log.Info("upload rejected due to fileSystem.Permission.Quota");
                 doUpload = false;
-               
+
             }
 
 
@@ -549,7 +549,7 @@ namespace mojoPortal.Web.Services
             {
                 log.Info("upload rejected due to not allowed file extension");
                 doUpload = false;
-                
+
             }
 
             string newFileName = Path.GetFileName(fileUploaded.FileName).ToCleanFileName(WebConfigSettings.ForceLowerCaseForUploadedFiles);
@@ -574,7 +574,7 @@ namespace mojoPortal.Web.Services
                         fileSystem.SaveFile(destPath, fileUploaded.InputStream, IOHelper.GetMimeType(ext), true);
                     }
 
-                    if(resize && keepOriginalSize)
+                    if (resize && keepOriginalSize)
                     {
                         fileSystem.CopyFile(destPath, fullSizeFilePath, true);
                     }
@@ -591,15 +591,15 @@ namespace mojoPortal.Web.Services
                                 WebConfigSettings.DefaultResizeBackgroundColor);
                         }
                     }
-                        
-                    
+
+
                 }
                 catch (Exception ex)
                 {
                     log.Error(ex);
                     context.Response.StatusCode = 404;
                 }
-                if(resize && keepOriginalSize)
+                if (resize && keepOriginalSize)
                 {
                     r.Add(new UploadFilesResult()
                     {
@@ -624,7 +624,7 @@ namespace mojoPortal.Web.Services
                     });
 
                 }
-                
+
 
                 var uploadedFiles = new
                 {
@@ -635,14 +635,14 @@ namespace mojoPortal.Web.Services
 
             }
 
-            
+
 
         }
 
         private void Upload(HttpContext context)
         {
             var result = OpResult.Denied;
-           
+
             string jsonResult = serializer.Serialize(result);
 
             bool doUpload = true;
@@ -652,20 +652,20 @@ namespace mojoPortal.Web.Services
                 fileUploaded = context.Request.Files[0];
 
 
-                if (fileUploaded.ContentLength > fileSystem.Permission.MaxSizePerFile) 
+                if (fileUploaded.ContentLength > fileSystem.Permission.MaxSizePerFile)
                 {
                     log.Info("upload rejected due to fileSystem.Permission.MaxSizePerFile");
                     doUpload = false;
                     jsonResult = serializer.Serialize(OpResult.FileSizeLimitExceed);
                 }
-                else if (fileSystem.CountAllFiles() >= fileSystem.Permission.MaxFiles) 
+                else if (fileSystem.CountAllFiles() >= fileSystem.Permission.MaxFiles)
                 {
                     log.Info("upload rejected due to fileSystem.Permission.MaxFiles");
                     doUpload = false;
                     jsonResult = serializer.Serialize(OpResult.FileLimitExceed);
 
                 }
-                else if (fileSystem.GetTotalSize() + fileUploaded.ContentLength >= fileSystem.Permission.Quota) 
+                else if (fileSystem.GetTotalSize() + fileUploaded.ContentLength >= fileSystem.Permission.Quota)
                 {
                     log.Info("upload rejected due to fileSystem.Permission.Quota");
                     doUpload = false;
@@ -681,35 +681,35 @@ namespace mojoPortal.Web.Services
                     //RenderJsonResult(context, OpResult.FileTypeNotAllowed);
                     //return;
                 }
-                    virtualPath = VirtualPathUtility.AppendTrailingSlash(virtualPath);
-                    if (doUpload)
+                virtualPath = VirtualPathUtility.AppendTrailingSlash(virtualPath);
+                if (doUpload)
+                {
+                    try
                     {
-                        try
+                        if (OnFileUploading(virtualPath, fileUploaded, ref result))
                         {
-                            if (OnFileUploading(virtualPath, fileUploaded, ref result))
+                            result = fileSystem.SaveFile(virtualPath, fileUploaded, overwriteExistingFiles);
+                            if (result == OpResult.Succeed)
                             {
-                                result = fileSystem.SaveFile(virtualPath, fileUploaded, overwriteExistingFiles);
-                                if (result == OpResult.Succeed)
-                                {
-                                    jsonResult = serializer.Serialize(
-                                        WebFileInfo.FromPostedFile(fileUploaded,
-                                        System.IO.Path.GetFileName(fileUploaded.FileName).ToCleanFileName(WebConfigSettings.ForceLowerCaseForUploadedFiles)).ToJson());
+                                jsonResult = serializer.Serialize(
+                                    WebFileInfo.FromPostedFile(fileUploaded,
+                                    System.IO.Path.GetFileName(fileUploaded.FileName).ToCleanFileName(WebConfigSettings.ForceLowerCaseForUploadedFiles)).ToJson());
 
-                                }
-                                else
-                                {
-                                    jsonResult = serializer.Serialize(result);
-                                }
+                            }
+                            else
+                            {
+                                jsonResult = serializer.Serialize(result);
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            log.Error(ex);
-                            result = OpResult.Error;
-                            jsonResult = serializer.Serialize(result);
-                        }
-
                     }
+                    catch (Exception ex)
+                    {
+                        log.Error(ex);
+                        result = OpResult.Error;
+                        jsonResult = serializer.Serialize(result);
+                    }
+
+                }
             }
             else
             {
@@ -717,13 +717,13 @@ namespace mojoPortal.Web.Services
                 jsonResult = serializer.Serialize(OpResult.Error);
             }
 
-             //this is supposed to be an html response not a json response
+            //this is supposed to be an html response not a json response
             context.Response.ContentType = "text/html";
             Encoding encoding = new UTF8Encoding();
             context.Response.ContentEncoding = encoding;
             context.Response.Write(BuildHtmlWrapper(context, jsonResult));
-            
-            
+
+
         }
 
         private string BuildHtmlWrapper(HttpContext context, string json)
@@ -849,8 +849,8 @@ namespace mojoPortal.Web.Services
                 }
             }
             else
-            { 
-                result = OpResult.FolderLimitExceed; 
+            {
+                result = OpResult.FolderLimitExceed;
             }
 
             RenderJsonResult(context, result);
@@ -912,7 +912,7 @@ namespace mojoPortal.Web.Services
             var result = OpResult.Denied;
 
             try
-            { 
+            {
                 virtualSourcePath = VirtualPathUtility.AppendTrailingSlash(virtualSourcePath);
                 virtualTargetPath = VirtualPathUtility.AppendTrailingSlash(virtualTargetPath);
 
@@ -999,7 +999,7 @@ namespace mojoPortal.Web.Services
 
             if (context.Request.Params["fld"] != null)
             {
-                virtualTargetPath = context.Request.Params["fld"].Replace("..",string.Empty);
+                virtualTargetPath = context.Request.Params["fld"].Replace("..", string.Empty);
             }
 
             //log.Info(context.Request.RawUrl);
@@ -1026,7 +1026,7 @@ namespace mojoPortal.Web.Services
             return input.Replace("..", string.Empty).Replace("/", string.Empty).Replace("\\", string.Empty).Trim();
         }
 
-        
+
         protected virtual bool OnFileDownloading(string path)
         {
             return true;
@@ -1073,9 +1073,9 @@ namespace mojoPortal.Web.Services
         }
 
 
-        
 
-        
+
+
         public bool IsReusable
         {
             get

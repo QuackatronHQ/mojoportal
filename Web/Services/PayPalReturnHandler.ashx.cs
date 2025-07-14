@@ -22,7 +22,7 @@ using mojoPortal.Business.WebHelpers.PaymentGateway;
 
 namespace mojoPortal.Web.Services
 {
-   
+
     /// <summary>
     /// the return url for paypal express checkout
     /// the token provided by paypal is used to lookup the paypal log which contains information about the provider that should handle
@@ -65,7 +65,7 @@ namespace mojoPortal.Web.Services
 
             }
 
-            
+
             PayPalReturnHandlerProvider provider = null;
             string returnUrl = string.Empty;
 
@@ -73,11 +73,11 @@ namespace mojoPortal.Web.Services
             {
                 provider = PayPalReturnHandlerManager.Providers[setExpressCheckoutLog.ProviderName];
             }
-            catch(TypeInitializationException ex)
+            catch (TypeInitializationException ex)
             {
                 log.Error(ex);
             }
-            
+
             if (provider != null)
             {
                 returnUrl = provider.HandleRequestAndReturnUrlForRedirect(
@@ -93,11 +93,11 @@ namespace mojoPortal.Web.Services
 
             }
 
-            if (returnUrl.Length == 0) 
+            if (returnUrl.Length == 0)
             {
                 log.Info("no return url determined so redirecting to site root");
                 returnUrl = SiteUtils.GetNavigationSiteRoot();
-                
+
             }
 
             context.Response.Redirect(returnUrl);
