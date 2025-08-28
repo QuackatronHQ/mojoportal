@@ -760,106 +760,108 @@ namespace mojoPortal.Net
 		{
 			return Send(smtpSettings, message, out _);
 		}
-        public static bool Send(SmtpSettings smtpSettings, MailMessage message, out string result)
-        {
-            if (message.To.ToString() == "admin@admin.com")
-			{ 
-				//demo site
-				result = "can't use admin@admin.com email address";
-				return false;
-			} 
+			        public static bool Send(SmtpSettings smtpSettings, MailMessage message, out string result)
+			        {
+			            if (message.To.ToString() == "admin@admin.com")
+						{ 
+							//demo site
+							result = "can't use admin@admin.com email address";
+							return false;
+						} 
 
-            string globalBcc = GetGlobalBccAddress();
-            if (globalBcc.Length > 0)
-            {
-                MailAddress bcc = new MailAddress(globalBcc);
-                message.Bcc.Add(bcc);
-            }
+			            string globalBcc = GetGlobalBccAddress();
+			            if (globalBcc.Length > 0)
+			            {
+			                MailAddress bcc = new MailAddress(globalBcc);
+			                message.Bcc.Add(bcc);
+			            }
 
-            int timeoutMilliseconds = ConfigHelper.GetIntProperty("SMTPTimeoutInMilliseconds", 15000);
-            SmtpClient smtpClient = new SmtpClient(smtpSettings.Server, smtpSettings.Port);
-            smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-            smtpClient.EnableSsl = smtpSettings.UseSsl;
-            smtpClient.Timeout = timeoutMilliseconds;
+			            int timeoutMilliseconds = ConfigHelper.GetIntProperty("SMTPTimeoutInMilliseconds", 15000);
+			            SmtpClient smtpClient = new SmtpClient(smtpSettings.Server, smtpSettings.Port)
+			            {
+			                EnableSsl = true
+			            };
+			            smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+			            smtpClient.Timeout = timeoutMilliseconds;
 
-            if (smtpSettings.RequiresAuthentication)
-            {
+			            if (smtpSettings.RequiresAuthentication)
+			            {
 
-                NetworkCredential smtpCredential
-                    = new NetworkCredential(
-                        smtpSettings.User,
-                        smtpSettings.Password);
+			                NetworkCredential smtpCredential
+			                    = new NetworkCredential(
+			                        smtpSettings.User,
+			                        smtpSettings.Password);
 
-                CredentialCache myCache = new CredentialCache();
-                myCache.Add(smtpSettings.Server, smtpSettings.Port, "LOGIN", smtpCredential);
+			                CredentialCache myCache = new CredentialCache();
+			                myCache.Add(smtpSettings.Server, smtpSettings.Port, "LOGIN", smtpCredential);
 
-                smtpClient.UseDefaultCredentials = false;
-                smtpClient.Credentials = myCache;
-            }
-            else
-            {
-                //aded 2010-01-22 JA
-                smtpClient.UseDefaultCredentials = true;
-            }
+			                smtpClient.UseDefaultCredentials = false;
+			                smtpClient.Credentials = myCache;
+			            }
+			            else
+			            {
+			                //aded 2010-01-22 JA
+			                smtpClient.UseDefaultCredentials = true;
+			            }
 
-            foreach (var header in smtpSettings.AdditionalHeaders)
-            {
-                message.Headers.Add(header.Name, header.Value);
-            }
+			            foreach (var header in smtpSettings.AdditionalHeaders)
+			            {
+			                message.Headers.Add(header.Name, header.Value);
+			            }
 
-            //message.Headers.Add(smtpSettings.AdditionalHeaders);
-            if (!string.IsNullOrWhiteSpace(smtpSettings.SenderHeader))
-                message.Headers.Add("X-mojo-Sender", smtpSettings.SenderHeader);
+			            //message.Headers.Add(smtpSettings.AdditionalHeaders);
+			            if (!string.IsNullOrWhiteSpace(smtpSettings.SenderHeader))
+			                message.Headers.Add("X-mojo-Sender", smtpSettings.SenderHeader);
 
-            try
-            {
-                smtpClient.Send(message);
-                //log.Debug("Sent Message: " + subject);
-                //log.Info("Sent Message: " + subject);
+			            try
+			            {
+			                smtpClient.Send(message);
+			                //log.Debug("Sent Message: " + subject);
+			                //log.Info("Sent Message: " + subject);
 
-                bool logEmail = ConfigHelper.GetBoolProperty("LogAllEmailsWithSubject", false);
+			                bool logEmail = ConfigHelper.GetBoolProperty("LogAllEmailsWithSubject", false);
 
-                if (logEmail) 
-                {
-                    log.Info("Sent message " + message.Subject + " to " + message.To[0].Address); 
-                }
-				result = "sent";
-                return true;
-            }
-            catch (System.Net.Mail.SmtpException ex)
-            {
-				//log.Error("error sending email to " + to + " from " + from, ex);
-				result = $"error: {ex}";
-                log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", will retry", ex);
-                return RetrySend(message, smtpClient, ex);
+			                if (logEmail) 
+			                {
+			                    log.Info("Sent message " + message.Subject + " to " + message.To[0].Address); 
+			                }
+						result = "sent";
+			                return true;
+			            }
+			            catch (System.Net.Mail.SmtpException ex)
+			            {
+							//log.Error("error sending email to " + to + " from " + from, ex);
+							result = $"error: {ex}";
+			                log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", will retry", ex);
+			                return RetrySend(message, smtpClient, ex);
 
-            }
-            catch (WebException ex)
-            {
-				result = $"error: {ex}";
-                log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
-                return false;
-            }
-            catch (SocketException ex)
-            {
-				result = $"error: {ex}";
-				log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
-                return false;
-            }
-            catch (InvalidOperationException ex)
-            {
-				result = $"error: {ex}";
-				log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
-                return false;
-            }
-            catch (FormatException ex)
-            {
-				result = $"error: {ex}";
-				log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
-                return false;
-            }
+			            }
+			            catch (WebException ex)
+			            {
+						result = $"error: {ex}";
+			                log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
+			                return false;
+			            }
+			            catch (SocketException ex)
+			            {
+						result = $"error: {ex}";
+						log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
+			                return false;
+			            }
+			            catch (InvalidOperationException ex)
+			            {
+						result = $"error: {ex}";
+						log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
+			                return false;
+			            }
+			            catch (FormatException ex)
+			            {
+						result = $"error: {ex}";
+						log.Error("error sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
+			                return false;
+			            }
 
-        }
+			        }
 
 		private static bool RetrySend(MailMessage message, SmtpClient smtp, Exception ex)
 		{
@@ -867,47 +869,50 @@ namespace mojoPortal.Net
 		}
 
 
-		private static bool RetrySend(MailMessage message, SmtpClient smtp, Exception ex, out string result)
-        {
-            //retry
-            int timesToRetry = ConfigHelper.GetIntProperty("TimesToRetryOnSmtpError", 3);
-            for (int i = 1; i <= timesToRetry; )
-            {
-                if (RetrySend(message, smtp, i)) { result = "sent"; return true; }
-                i += 1;
-                Thread.Sleep(1000); // 1 second sleep in case it is a temporary network issue
-            }
+				private static bool RetrySend(MailMessage message, SmtpClient smtp, Exception ex, out string result)
+		        {
+		            //retry
+		            int timesToRetry = ConfigHelper.GetIntProperty("TimesToRetryOnSmtpError", 3);
+		            for (int i = 1; i <= timesToRetry; )
+		            {
+		                if (RetrySend(message, smtp, i)) { result = "sent"; return true; }
+		                i += 1;
+		                Thread.Sleep(1000); // 1 second sleep in case it is a temporary network issue
+		            }
 
-            // allows use of localhost as  backup 
-            if (ConfigurationManager.AppSettings["BackupSmtpServer"] != null)
-            {
-                string backupServer = ConfigurationManager.AppSettings["BackupSmtpServer"];
-                int timeoutMilliseconds = ConfigHelper.GetIntProperty("SMTPTimeoutInMilliseconds", 15000);
-                int backupSmtpPort = ConfigHelper.GetIntProperty("BackupSmtpPort", 25);
-                SmtpClient smtpClient = new SmtpClient(backupServer, backupSmtpPort);
-                smtpClient.UseDefaultCredentials = true;
+		            // allows use of localhost as  backup 
+		            if (ConfigurationManager.AppSettings["BackupSmtpServer"] != null)
+		            {
+		                string backupServer = ConfigurationManager.AppSettings["BackupSmtpServer"];
+		                int timeoutMilliseconds = ConfigHelper.GetIntProperty("SMTPTimeoutInMilliseconds", 15000);
+		                int backupSmtpPort = ConfigHelper.GetIntProperty("BackupSmtpPort", 25);
+		                SmtpClient smtpClient = new SmtpClient(backupServer, backupSmtpPort)
+		                {
+		                    EnableSsl = true
+		                };
+		                smtpClient.UseDefaultCredentials = true;
 
-                try
-                {
-                    smtpClient.Send(message);
-                    log.Info("success using backup smtp server sending email to " + message.To.ToString() + " from " + message.From);
-					result = "sent";
-                    return true;
-                }
-                catch (System.Net.Mail.SmtpException) { }
-                catch (WebException) { }
-                catch (SocketException) { }
-                catch (InvalidOperationException) { }
-                catch (FormatException) { }
+		                try
+		                {
+		                    smtpClient.Send(message);
+		                    log.Info("success using backup smtp server sending email to " + message.To.ToString() + " from " + message.From);
+							result = "sent";
+		                    return true;
+		                }
+		                catch (System.Net.Mail.SmtpException) { }
+		                catch (WebException) { }
+		                catch (SocketException) { }
+		                catch (InvalidOperationException) { }
+		                catch (FormatException) { }
 
-            }
+		            }
 
-            //log.Info("all retries failed sending email to " + message.To.ToString() + " from " + message.From);
-            log.Error("all retries failed sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
-			result = "fail";
-            return false;
+		            //log.Info("all retries failed sending email to " + message.To.ToString() + " from " + message.From);
+		            log.Error("all retries failed sending email to " + message.To.ToString() + " from " + message.From.ToString() + ", message was: " + message.Body, ex);
+					result = "fail";
+		            return false;
 
-        }
+		        }
 
         private static bool RetrySend(MailMessage message, SmtpClient smtp, int tryNumber)
         {
