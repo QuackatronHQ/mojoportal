@@ -822,16 +822,15 @@ namespace mojoPortal.Business
 			}
 			set { SetExpandoProperty("SiteMapSkin", value); }
 		}
-
-		public string AppLogoForWindowsLive
+		public Uri AppLogoForWindowsLive
 		{
 			get
 			{
 				string result = GetExpandoProperty("AppLogoForWindowsLive");
-				if (result != null) { return result; }
-				return "/Data/logos/mojomoonprint.jpg";
+				if (result != null) { return new Uri(result); }
+				return new Uri("/Data/logos/mojomoonprint.jpg");
 			}
-			set { SetExpandoProperty("AppLogoForWindowsLive", value); }
+			set { SetExpandoProperty("AppLogoForWindowsLive", value.ToString()); }
 		}
 
 		public bool AllowWindowsLiveMessengerForMembers
@@ -872,15 +871,15 @@ namespace mojoPortal.Business
 			set { SetExpandoProperty("RpxNowApplicationName", value); }
 		}
 
-		public string RpxNowAdminUrl
+		public Uri RpxNowAdminUrl
 		{
 			get
 			{
 				string result = GetExpandoProperty("RpxNowAdminUrl");
-				if (result != null) { return result; }
-				return string.Empty;
+				if (result != null) { return new Uri(result); }
+				return new Uri(string.Empty);
 			}
-			set { SetExpandoProperty("RpxNowAdminUrl", value); }
+			set { SetExpandoProperty("RpxNowAdminUrl", value.ToString()); }
 		}
 
 		public string OpenSearchName
@@ -923,6 +922,8 @@ namespace mojoPortal.Business
 			{
 				string result = GetExpandoProperty("PrimarySearchEngine");
 				if (result != null) { return result; }
+				return string.Empty;
+			}
 				return "internal";
 			}
 			set { SetExpandoProperty("PrimarySearchEngine", value); }

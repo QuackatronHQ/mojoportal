@@ -27,106 +27,106 @@ namespace mojoPortal.Web.Controls
 
         #region Constructors
 
-        public HelpLinkButton()
-		{
-			EnsureChildControls();
+		        public HelpLinkButton()
+				{
+					EnsureChildControls();
 
-            
-		}
+		            
+				}
 
-		#endregion
+				#endregion
 
-        #region Control Declarations
+		        #region Control Declarations
 
-        protected Literal litHelpLink;
+		        protected Literal litHelpLink;
 
-        #endregion
+		        #endregion
 
-        #region Private Properties
+		        #region Private Properties
 
-        private string helpKey = string.Empty;
-        private string text = string.Empty;
-        private string imageUrl = string.Empty;
-        private string cssBaseUrl = "~/Data/style";
-        private string navigateUrl = "~/Help.aspx";
-        private int modalWidth = 400;
-        private int modalHeight = 350;
-        private int imageWidth = 0;
-        private int imageHeight = 0;
-        private string scriptDirectory = "~/ClientScript";
+		        private string helpKey = string.Empty;
+		        private string text = string.Empty;
+		        private string imageUrl = string.Empty;
+		        private string cssBaseUrl = "~/Data/style";
+		        private Uri navigateUrl = new Uri("~/Help.aspx", UriKind.Relative);
+		        private int modalWidth = 400;
+		        private int modalHeight = 350;
+		        private int imageWidth = 0;
+		        private int imageHeight = 0;
+		        private string scriptDirectory = "~/ClientScript";
 
-        #endregion
+		        #endregion
 
-        #region Public Properties
+		        #region Public Properties
 
-        public String HelpKey
-        {
-            get {return helpKey; }
-            set { helpKey = value; }
-        }
+		        public String HelpKey
+		        {
+		            get {return helpKey; }
+		            set { helpKey = value; }
+		        }
 
-        public string Text
-        {
-            get { return text; }
-            set { text = value; }
-        }
+		        public string Text
+		        {
+		            get { return text; }
+		            set { text = value; }
+		        }
 
-        public string ImageUrl
-        {
-            get { return imageUrl;}
-            set { imageUrl = value; }
-        }
+		        public string ImageUrl
+		        {
+		            get { return imageUrl;}
+		            set { imageUrl = value; }
+		        }
 
-        public string CssBaseUrl
-        {
-            get { return cssBaseUrl; }
-            set { cssBaseUrl = value; }
-        }
+		        public string CssBaseUrl
+		        {
+		            get { return cssBaseUrl; }
+		            set { cssBaseUrl = value; }
+		        }
 
-        public string NavigateUrl
-        {
-            get { return navigateUrl; }
-            set { navigateUrl = value; }
-        }
+		        public Uri NavigateUrl
+		        {
+		            get { return navigateUrl; }
+		            set { navigateUrl = value; }
+		        }
 
-        public int ModalWidth
-        {
-            get { return modalWidth; }
-            set { modalWidth = value; }
-        }
+		        public int ModalWidth
+		        {
+		            get { return modalWidth; }
+		            set { modalWidth = value; }
+		        }
 
-        public int ModalHeight
-        {
-            get { return modalHeight; }
-            set { modalHeight = value; }
-        }
+		        public int ModalHeight
+		        {
+		            get { return modalHeight; }
+		            set { modalHeight = value; }
+		        }
 
-        public int ImageWidth
-        {
-            get { return imageWidth; }
-            set { imageWidth = value; }
-        }
+		        public int ImageWidth
+		        {
+		            get { return imageWidth; }
+		            set { imageWidth = value; }
+		        }
 
-        public int ImageHeight
-        {
-            get { return imageHeight; }
-            set { imageHeight = value; }
-        }
+		        public int ImageHeight
+		        {
+		            get { return imageHeight; }
+		            set { imageHeight = value; }
+		        }
 
-        [Bindable(true), Category("Behavior"), DefaultValue("~/ClientScript")]
-        public string ScriptDirectory
-        {
-            get { return scriptDirectory; }
-            set { scriptDirectory = value; }
-        }
+		        [Bindable(true), Category("Behavior"), DefaultValue("~/ClientScript")]
+		        public string ScriptDirectory
+		        {
+		            get { return scriptDirectory; }
+		            set { scriptDirectory = value; }
+		        }
 
-        #endregion
+		        #endregion
 
-        protected override void OnInit(EventArgs e)
-        {
-            base.OnInit(e);
-            this.EnableViewState = false;
-        }
+		        protected override void OnInit(EventArgs e)
+		        {
+		            base.OnInit(e);
+		            this.EnableViewState = false;
+		        }
 
 
         protected override void Render(HtmlTextWriter writer)
@@ -204,12 +204,12 @@ namespace mojoPortal.Web.Controls
         }
 
 
-        private string GetNavigationUrl()
+        private Uri GetNavigationUrl()
         {
             string url = (this.NavigateUrl != string.Empty) ? ResolveUrl(NavigateUrl) : ResolveUrl("~/Help.aspx");
             url += (url.IndexOf("?") > -1) ? "&" : "?";
             url += "helpkey=" + this.HelpKey.ToLower(CultureInfo.InvariantCulture);
-            return url;
+            return new Uri(url, UriKind.RelativeOrAbsolute);
         }
 
         private string GetIBoxLink()
