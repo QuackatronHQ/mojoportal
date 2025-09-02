@@ -242,7 +242,7 @@ namespace mojoPortal.Business.WebHelpers.PaymentGateway
         /// This builds an url for buy now button links.
         /// </summary>
         /// <returns></returns>
-        public string GetBuyNowButtonUrl()
+        public Uri GetBuyNowButtonUrl()
         {
             StringBuilder url = new StringBuilder();
 

@@ -96,7 +96,6 @@ namespace mojoPortal.Business.WebHelpers.PaymentGateway
         private string notificationUrl = string.Empty;
         private string orderDescription = string.Empty;
         private string merchantCartId = string.Empty;
-
         private string shipToSalutation = string.Empty;
         private string shipToFirstName = string.Empty;
         private string shipToLastName = string.Empty;
@@ -111,11 +110,11 @@ namespace mojoPortal.Business.WebHelpers.PaymentGateway
         private string shipToCountry = string.Empty;
         private string shipToPhone = string.Empty;
         private string shipToAddressStatus = string.Empty;
-        
+
         private string transactionID = string.Empty;
         private string reasonCode = string.Empty;
         private string responseReason = string.Empty;
-        
+
         private string currencyCode = "USD";
         private decimal chargeTotal = 0;
 
@@ -146,9 +145,9 @@ namespace mojoPortal.Business.WebHelpers.PaymentGateway
         /// <summary>
         /// If this is populated by SetExpressCheckout you redirect to it
         /// </summary>
-        public string PayPalExpressUrl
+        public Uri PayPalExpressUrl
         {
-            get { return payPalExpressUrl; }
+            get { return new Uri(payPalExpressUrl); }
         }
 
         public string PayPalPayerStatus

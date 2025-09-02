@@ -44,8 +44,8 @@ namespace mojoPortal.Business
         private Guid rowGuid = Guid.Empty;
         private Guid siteGuid = Guid.Empty;
         private int siteId = -1;
-        private string oldUrl = string.Empty;
-        private string newUrl = string.Empty;
+        private Uri oldUrl;
+        private Uri newUrl;
         private DateTime createdUtc = DateTime.UtcNow;
         private DateTime expireUtc = DateTime.UtcNow;
 
@@ -68,12 +68,12 @@ namespace mojoPortal.Business
             get { return siteId; }
             set { siteId = value; }
         }
-        public string OldUrl
+        public Uri OldUrl
         {
             get { return oldUrl; }
             set { oldUrl = value; }
         }
-        public string NewUrl
+        public Uri NewUrl
         {
             get { return newUrl; }
             set { newUrl = value; }
@@ -117,13 +117,12 @@ namespace mojoPortal.Business
                 this.rowGuid = new Guid(reader["RowGuid"].ToString());
                 this.siteGuid = new Guid(reader["SiteGuid"].ToString());
                 this.siteId = Convert.ToInt32(reader["SiteID"]);
-                this.oldUrl = reader["OldUrl"].ToString();
-                this.newUrl = reader["NewUrl"].ToString();
+                this.oldUrl = new Uri(reader["OldUrl"].ToString());
+                this.newUrl = new Uri(reader["NewUrl"].ToString());
                 this.createdUtc = Convert.ToDateTime(reader["CreatedUtc"]);
                 this.expireUtc = Convert.ToDateTime(reader["ExpireUtc"]);
 
             }
-            
         }
 
         /// <summary>

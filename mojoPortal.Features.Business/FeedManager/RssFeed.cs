@@ -143,21 +143,21 @@ namespace mojoPortal.Business
             get { return author; }
             set { author = value; }
         }
-        public string Url
+        public Uri Url
         {
-            get { return url; }
-            set { url = value; }
+            get { return new Uri(url); }
+            set { url = value.ToString(); }
         }
-        public string RssUrl
+        public Uri RssUrl
         {
-            get { return rssUrl; }
-            set { rssUrl = value; }
+            get { return new Uri(rssUrl); }
+            set { rssUrl = value.ToString(); }
         }
 
-        public string ImageUrl
+        public Uri ImageUrl
         {
-            get { return imageUrl; }
-            set { imageUrl = value; }
+            get { return new Uri(imageUrl); }
+            set { imageUrl = value.ToString(); }
         }
 
         public string FeedType

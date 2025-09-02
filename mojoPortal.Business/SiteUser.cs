@@ -455,10 +455,10 @@ namespace mojoPortal.Business
 			set { displayInMemberList = value; }
 		}
 
-		public string WebSiteUrl
+		public Uri WebSiteUrl
 		{
-			get { return webSiteUrl; }
-			set { webSiteUrl = value; }
+			get { return new Uri(webSiteUrl); }
+			set { webSiteUrl = value.ToString(); }
 		}
 
 		public string Country
